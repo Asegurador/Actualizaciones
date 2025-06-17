@@ -233,6 +233,10 @@
       border-left-color: var(--warning);
     }
 
+    .top-10-section {
+      margin-bottom: 2rem;
+    }
+
     .section-title {
       font-size: 1.8rem;
       color: var(--accent);
@@ -554,6 +558,13 @@
       <div id="notificationsList" class="collapsible-content"></div>
     </div>
 
+    <div class="top-10-section" id="top10Section" style="display: none;">
+      <h2 class="section-title collapsible-header" onclick="toggleSection('top10Grid')">
+        ⚡ Top 10 Más Urgentes <span class="toggle-icon">▼</span>
+      </h2>
+      <div class="priority-grid collapsible-content" id="top10Grid"></div>
+    </div>
+
     <div id="contenedor">
       <div class="empty-state">
         <h3>👆 Selecciona una tutora</h3>
@@ -570,6 +581,7 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const statsGrid = document.getElementById('statsGrid');
     const notifications = document.getElementById('notifications');
+    const top10Section = document.getElementById('top10Section');
 
     let currentData = [];
 
@@ -653,10 +665,55 @@
       notifications.style.display = 'block';
     }
 
+    function showTop10(registros) {
+      const top10 = registros
+        .sort((a, b) => a.proxima - b.proxima)
+        .slice(0, 10);
+
+      const top10Grid = document.getElementById('top10Grid');
+      top10Grid.innerHTML = '';
+
+      top10.forEach((r, index) => {
+        const estado = estadoClase(r.dias);
+        const card = document.createElement('div');
+        card.className = `priority-card ${estado}`;
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.8rem;">
+              #${index + 1}
+            </span>
+            <span class="status-badge ${estado}">${estado.toUpperCase()}</span>
+          </div>
+          <div class="card-content">
+            <div class="card-row">
+              <span class="label">Código:</span>
+              <span class="value">${r.id}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">Nombre:</span>
+              <span class="value">${r.nombre}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">Días restantes:</span>
+              <span class="value" style="font-weight: bold; color: ${estado === 'vencido' ? '#ff6b6b' : estado === 'pronto' ? '#ffb347' : '#00f2fe'}">${r.dias}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">Próxima foto:</span>
+              <span class="value">${formatDate(r.proxima)}</span>
+            </div>
+          </div>
+        `;
+        top10Grid.appendChild(card);
+      });
+
+      top10Section.style.display = 'block';
+    }
+
     async function cargarDatos(nombreHoja) {
       contenedor.innerHTML = '<div class="loading">⏳ Cargando datos...</div>';
       statsGrid.style.display = 'none';
       notifications.style.display = 'none';
+      top10Section.style.display = 'none';
 
       try {
         const url = sheetBase + encodeURIComponent(nombreHoja);
@@ -733,7 +790,7 @@
               <span class="status-badge ${estado}">${estado.toUpperCase()}</span>
             </div>
             <div class="card-row">
-              <span class="label">💰 Estado Patrocinio:</span>
+              <span class="label">💰 EstadoPatrocinio:</span>
               <span class="value">${p.patrocinio}</span>
             </div>
             <div class="card-row">
@@ -754,6 +811,7 @@
         contenedor.innerHTML = '<div class="empty-state"><h3>👆 Selecciona una tutora</h3><p>Elige una tutora del menú desplegable para ver el seguimiento de sus beneficiarios</p></div>';
         statsGrid.style.display = 'none';
         notifications.style.display = 'none';
+        top10Section.style.display = 'none';
       }
     });
 
