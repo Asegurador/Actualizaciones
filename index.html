@@ -4,7 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Seguimiento Fotográfico ONG</title>
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/685/685655.png" type="image/png">
   <style>
     :root {
       --primary: #667eea;
@@ -673,7 +672,7 @@
           const nombre = c[2]?.v;
           const ult = parseDate(c[3]?.v);
           const patrocinio = c[4]?.v || 'No definido';
-          const tutora = c[5]?.v ;
+          const tutora = c[5]?.v;
           if (!ult || !id || !nombre) return;
           const proxima = addMonths(ult, 18);
           const dias = diasRestantes(proxima);
@@ -764,7 +763,7 @@
         cargarDatos(hoja);
       }
     });
-    
+
     function toggleSection(sectionId) {
       const content = document.getElementById(sectionId);
       const header = content.previousElementSibling;
