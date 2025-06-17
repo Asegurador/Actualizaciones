@@ -641,7 +641,7 @@
         const url = sheetBase + encodeURIComponent(nombreHoja);
         const texto = await fetch(url).then(r => r.text());
         const json = JSON.parse(texto.substring(47).slice(0, -2));
-        const filas = json.table.rows.slice(1);
+        const filas = json.table.rows;
         const registros = [];
 
         filas.forEach(f => {
