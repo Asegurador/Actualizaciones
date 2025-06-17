@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seguimiento Fotográfico ONG</title>
+  <style>
+    :root {
+      --primary: #667eea;
+      --primary-dark: #764ba2;
+      --secondary: #f093fb;
+      --accent: #4facfe;
+      --success: #00f2fe;
+      --warning: #ffb347;
+      --danger: #ff6b6b;
+      --dark: #1a1a2e;
+      --darker: #16213e;
+      --light: #e94560;
+      --text: #ffffff;
+      --text-muted: #b8c6db;
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, var(--dark) 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .background-pattern {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.05;
+      background-image: 
+        radial-gradient(circle at 20% 50%, white 2px, transparent 2px),
+        radial-gradient(circle at 80% 20%, white 2px, transparent 2px),
+        radial-gradient(circle at 40% 80%, white 2px, transparent 2px);
+      background-size: 100px 100px, 150px 150px, 120px 120px;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    .header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 30px rgba(79, 172, 254, 0.3);
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .info-banner {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      animation: slideInUp 1s ease-out 0.3s both;
+    }
+
+    .info-banner h3 {
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      font-size: 1.3rem;
+    }
+
+    .info-banner p {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .controls {
+      display: grid;
+      color:#1a1a2e;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      animation: slideInLeft 1s ease-out 0.5s both;
+    }
+
+    .select-wrapper {
+      position: relative;
+    }
+
+    .select-wrapper::after {
+      content: '▼';
+      color:#1a1a2e;
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      pointer-events: none;
+    }
+
+    select {
+      width: 100%;
+      padding: 15px 45px 15px 20px;
+      color:#1a1a2e;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--glass-border);
+      border-radius: 15px;
+      color: var(--text);
+      font-size: 1rem;
+      appearance: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+    }
+
+    .refresh-btn {
+      padding: 15px 25px;
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      border: none;
+      border-radius: 15px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+    }
+
+    .refresh-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(79, 172, 254, 0.4);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-ok .stat-number { color: var(--success); }
+    .stat-pronto .stat-number { color: var(--warning); }
+    .stat-vencido .stat-number { color: var(--danger); }
+
+    .notifications {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      animation: slideInRight 1s ease-out 0.7s both;
+    }
+
+    .notifications h3 {
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .notification-item {
+      background: rgba(255, 107, 107, 0.1);
+      border-left: 4px solid var(--danger);
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0 10px 10px 0;
+      animation: pulse 2s infinite;
+    }
+
+    .notification-item.warning {
+      background: rgba(255, 179, 71, 0.1);
+      border-left-color: var(--warning);
+    }
+
+    .top-10-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .priority-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1rem;
+    }
+
+    .priority-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 1.2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .priority-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--danger), var(--warning));
+    }
+
+    .priority-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+    }
+
+    .card.ok::before { background: var(--success); }
+    .card.pronto::before { background: var(--warning); }
+    .card.vencido::before { background: var(--danger); }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-content {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.3rem 0;
+    }
+
+    .label {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .value {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .status-badge {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .ok { 
+      background: rgba(0, 242, 254, 0.2); 
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+    
+    .pronto { 
+      background: rgba(255, 179, 71, 0.2); 
+      color: var(--warning);
+      border: 1px solid var(--warning);
+    }
+    
+    .vencido { 
+      background: rgba(255, 107, 107, 0.2); 
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      animation: pulse 2s infinite;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      padding: 2rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    .error {
+      text-align: center;
+      color: var(--danger);
+      background: rgba(255, 107, 107, 0.1);
+      padding: 2rem;
+      border-radius: 15px;
+      border: 1px solid var(--danger);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 15px; }
+      
+      .controls {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+      
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .priority-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .card-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stat-card {
+        padding: 1rem;
+      }
+      
+      .card {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-pattern"></div>
+  
+  <div class="container">
+    <div class="header">
+      <h1>📸 Seguimiento Fotográfico ONG</h1>
+      <p class="subtitle">Sistema de Control y Monitoreo de Actualizaciones</p>
+    </div>
+
+    <div class="info-banner">
+      <h3>🔄 Información Importante</h3>
+      <p>Las fotografías deben actualizarse cada <strong>18 meses</strong> para mantener el seguimiento adecuado de los beneficiarios del programa.</p>
+    </div>
+
+    <div class="controls">
+      <div class="select-wrapper">
+        <select id="seleccionTutora">
+          <option value="">Seleccione una tutora...</option>
+          <option value="Lisbeth">👩‍🏫 Yrany Lisbeth Martinez</option>
+          <option value="Diana">👩‍🏫 Diana Carolina Ureña Mendoza</option>
+          <option value="Juliana">👩‍🏫 Juliana Villamizar Ortiz</option>
+          <option value="Helen">👩‍🏫 Helen Abelyn Sanchez Gutierrez</option>
+        </select>
+      </div>
+      <button class="refresh-btn" id="refreshBtn">🔄 Actualizar</button>
+    </div>
+
+    <div class="stats-grid" id="statsGrid" style="display: none;">
+      <div class="stat-card stat-ok">
+        <div class="stat-number" id="statOk">0</div>
+        <div class="stat-label">Al día</div>
+      </div>
+      <div class="stat-card stat-pronto">
+        <div class="stat-number" id="statProximo">0</div>
+        <div class="stat-label">Próximos a vencer</div>
+      </div>
+      <div class="stat-card stat-vencido">
+        <div class="stat-number" id="statVencido">0</div>
+        <div class="stat-label">Vencidos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statTotal">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+    </div>
+
+    <div class="notifications" id="notifications" style="display: none;">
+      <h3>🚨 Notificaciones Urgentes</h3>
+      <div id="notificationsList"></div>
+    </div>
+
+    <div class="top-10-section" id="top10Section" style="display: none;">
+      <h2 class="section-title">⚡ Top 10 Más Urgentes</h2>
+      <div class="priority-grid" id="top10Grid"></div>
+    </div>
+
+    <div id="contenedor">
+      <div class="empty-state">
+        <h3>👆 Selecciona una tutora</h3>
+        <p>Elige una tutora del menú desplegable para ver el seguimiento de sus beneficiarios</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sheetBase = 'https://docs.google.com/spreadsheets/d/1WcYrZaDFjst7FW93FGS3B6FTDMl0QP17/gviz/tq?tqx=out:json&sheet=';
+
+    const contenedor = document.getElementById('contenedor');
+    const selectTutora = document.getElementById('seleccionTutora');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const statsGrid = document.getElementById('statsGrid');
+    const notifications = document.getElementById('notifications');
+    const top10Section = document.getElementById('top10Section');
+
+    let currentData = [];
+
+    function parseDate(val) {
+      if (typeof val !== 'string') return null;
+      const m = val.match(/Date\((\d+),(\d+),(\d+)\)/);
+      if (m) return new Date(+m[1], +m[2], +m[3]);
+      const parts = val.split('/');
+      if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
+      return null;
+    }
+
+    function addMonths(date, n) {
+      const d = new Date(date);
+      d.setMonth(d.getMonth() + n);
+      return d;
+    }
+
+    function formatDate(d) {
+      return d.toLocaleDateString('es-CO');
+    }
+
+    function diasRestantes(f) {
+      return Math.ceil((f - new Date()) / (1000 * 60 * 60 * 24));
+    }
+
+    function estadoClase(d) {
+      if (d < 0) return 'vencido';
+      if (d <= 30) return 'pronto';
+      return 'ok';
+    }
+
+    function updateStats(registros) {
+      const stats = {
+        ok: registros.filter(r => estadoClase(r.dias) === 'ok').length,
+        pronto: registros.filter(r => estadoClase(r.dias) === 'pronto').length,
+        vencido: registros.filter(r => estadoClase(r.dias) === 'vencido').length,
+        total: registros.length
+      };
+
+      document.getElementById('statOk').textContent = stats.ok;
+      document.getElementById('statProximo').textContent = stats.pronto;
+      document.getElementById('statVencido').textContent = stats.vencido;
+      document.getElementById('statTotal').textContent = stats.total;
+
+      statsGrid.style.display = 'grid';
+    }
+
+    function showNotifications(registros) {
+      const urgentes = registros.filter(r => r.dias < 0);
+      const proximos = registros.filter(r => r.dias >= 0 && r.dias <= 15);
+      
+      const notificationsList = document.getElementById('notificationsList');
+      notificationsList.innerHTML = '';
+
+      if (urgentes.length === 0 && proximos.length === 0) {
+        notifications.style.display = 'none';
+        return;
+      }
+
+      urgentes.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'notification-item';
+        div.innerHTML = `
+          <strong>⚠️ VENCIDO:</strong> ${r.nombre} (${r.id}) - 
+          Vencido hace ${Math.abs(r.dias)} días
+        `;
+        notificationsList.appendChild(div);
+      });
+
+      proximos.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'notification-item warning';
+        div.innerHTML = `
+          <strong>⏰ PRÓXIMO:</strong> ${r.nombre} (${r.id}) - 
+          Vence en ${r.dias} días
+        `;
+        notificationsList.appendChild(div);
+      });
+
+      notifications.style.display = 'block';
+    }
+
+    function showTop10(registros) {
+      const top10 = registros
+        .sort((a, b) => a.proxima - b.proxima)
+        .slice(0, 10);
+
+      const top10Grid = document.getElementById('top10Grid');
+      top10Grid.innerHTML = '';
+
+      top10.forEach((r, index) => {
+        const estado = estadoClase(r.dias);
+        const card = document.createElement('div');
+        card.className = `priority-card ${estado}`;
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: bold; font-size: 0.8rem;">
+              #${index + 1}
+            </span>
+            <span class="status-badge ${estado}">${estado.toUpperCase()}</span>
+          </div>
+          <div class="card-content">
+            <div class="card-row">
+              <span class="label">Código:</span>
+              <span class="value">${r.id}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">Nombre:</span>
+              <span class="value">${r.nombre}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">Días restantes:</span>
+              <span class="value" style="font-weight: bold; color: ${estado === 'vencido' ? '#ff6b6b' : estado === 'pronto' ? '#ffb347' : '#00f2fe'}">${r.dias}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">Próxima foto:</span>
+              <span class="value">${formatDate(r.proxima)}</span>
+            </div>
+          </div>
+        `;
+        top10Grid.appendChild(card);
+      });
+
+      top10Section.style.display = 'block';
+    }
+
+    async function cargarDatos(nombreHoja) {
+      contenedor.innerHTML = '<div class="loading">⏳ Cargando datos...</div>';
+      statsGrid.style.display = 'none';
+      notifications.style.display = 'none';
+      top10Section.style.display = 'none';
+
+      try {
+        const url = sheetBase + encodeURIComponent(nombreHoja);
+        const texto = await fetch(url).then(r => r.text());
+        const json = JSON.parse(texto.substring(47).slice(0, -2));
+        const filas = json.table.rows.slice(1);
+        const registros = [];
+
+        filas.forEach(f => {
+          const c = f.c;
+          if (!c || c.length < 7) return;
+          const id = c[1]?.v;
+          const nombre = c[2]?.v;
+          const ult = parseDate(c[3]?.v);
+          const patrocinio = c[5]?.v || 'No definido';
+          const tutora = c[6]?.v || nombreHoja;
+          if (!ult || !id || !nombre) return;
+          const proxima = addMonths(ult, 18);
+          const dias = diasRestantes(proxima);
+          registros.push({ id, nombre, ult, proxima, dias, patrocinio, tutora });
+        });
+
+        currentData = registros;
+        updateStats(registros);
+        showNotifications(registros);
+        showTop10(registros);
+        mostrarRegistros(registros);
+      } catch (err) {
+        contenedor.innerHTML = '<div class="error">❌ Error cargando datos. Por favor, intente nuevamente.</div>';
+        console.error(err);
+      }
+    }
+
+    function mostrarRegistros(registros) {
+      if (registros.length === 0) {
+        contenedor.innerHTML = '<div class="empty-state"><h3>📭 No hay datos</h3><p>No se encontraron registros para esta tutora</p></div>';
+        return;
+      }
+
+      contenedor.innerHTML = '<div class="cards-grid" id="cardsGrid"></div>';
+      const cardsGrid = document.getElementById('cardsGrid');
+      
+      registros.sort((a, b) => a.proxima - b.proxima);
+      
+      registros.forEach((p, index) => {
+        const estado = estadoClase(p.dias);
+        const card = document.createElement('div');
+        card.className = `card ${estado}`;
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.innerHTML = `
+          <div class="card-content">
+            <div class="card-row">
+              <span class="label">📋 Código:</span>
+              <span class="value">${p.id}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">👤 Nombre:</span>
+              <span class="value">${p.nombre}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">📅 Última Foto:</span>
+              <span class="value">${formatDate(p.ult)}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">⏭️ Próxima Foto:</span>
+              <span class="value">${formatDate(p.proxima)}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">⏱️ Días Restantes:</span>
+              <span class="value" style="font-weight: bold; font-size: 1.1rem;">${p.dias}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">📊 Estado:</span>
+              <span class="status-badge ${estado}">${estado.toUpperCase()}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">💰 Patrocinio:</span>
+              <span class="value">${p.patrocinio}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">👩‍🏫 Tutora:</span>
+              <span class="value">${p.tutora}</span>
+            </div>
+          </div>
+        `;
+        cardsGrid.appendChild(card);
+      });
+    }
+
+    selectTutora.addEventListener('change', () => {
+      const hoja = selectTutora.value;
+      if (hoja) {
+        cargarDatos(hoja);
+      } else {
+        contenedor.innerHTML = '<div class="empty-state"><h3>👆 Selecciona una tutora</h3><p>Elige una tutora del menú desplegable para ver el seguimiento de sus beneficiarios</p></div>';
+        statsGrid.style.display = 'none';
+        notifications.style.display = 'none';
+        top10Section.style.display = 'none';
+      }
+    });
+
+    refreshBtn.addEventListener('click', () => {
+      const hoja = selectTutora.value;
+      if (hoja) {
+        cargarDatos(hoja);
+      }
+    });
+
+    // Animación inicial
+    setTimeout(() => {
+      document.body.style.opacity = '1';
+    }, 100);
+  </script>
+</body>
+</html>
