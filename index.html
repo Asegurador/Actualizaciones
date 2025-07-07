@@ -652,10 +652,11 @@
           const ult = parseDate(c[3]?.v);
           const patrocinio = c[4]?.v || 'No definido';
           const tutora = c[5]?.v;
+          const numero = c[6]?.v;
           if (!ult || !id || !nombre) return;
           const proxima = addMonths(ult, 18);
           const dias = diasRestantes(proxima);
-          registros.push({ id, nombre, ult, proxima, dias, patrocinio, tutora });
+          registros.push({ id, nombre, ult, proxima, dias, patrocinio, tutora, numero });
         });
 
         currentData = registros;
@@ -719,14 +720,20 @@
               <span class="status-badge ${estado}">${estado.toUpperCase()}</span>
             </div>
             <div class="card-row">
-              <span class="label">💰 EstadoPatrocinio:</span>
+              <span class="label">💰 Estado Patrocinio:</span>
               <span class="value">${p.patrocinio}</span>
             </div>
             <div class="card-row">
               <span class="label">👩‍🏫 Tutora:</span>
               <span class="value">${p.tutora}</span>
             </div>
-          </div>
+            <div class="card-row">
+              <span class="label">📞 Numero:</span>
+              <span class="value">
+                <a href="tel:${p.numero}"             style="text-decoration: none; color: white; font-weight: bold;">${p.numero}</a>
+              </span>
+            </div>
+          </div> 
         `;
         cardsGrid.appendChild(card);
       });
@@ -769,3 +776,4 @@
   </script>
 </body>
 </html>
+
